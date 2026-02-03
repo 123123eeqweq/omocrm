@@ -1,12 +1,10 @@
 import { useState } from "react"
-import { useNavigate } from "react-router-dom"
 import { login } from "@/lib/auth"
 import { ApiError } from "@/lib/api"
 
 const ACCENT = "#b0853c"
 
 export function Login() {
-  const navigate = useNavigate()
   const [loginValue, setLoginValue] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
@@ -17,8 +15,17 @@ export function Login() {
     setError("")
     setLoading(true)
     try {
+      // Вызываем login, который установит флаг в localStorage
       await login(loginValue, password)
-      navigate("/dashboard", { replace: true })
+      
+      // Двойная проверка - гарантируем что флаг установлен
+      localStorage.setItem("auth", "1")
+      
+      // Используем setTimeout с минимальной задержкой для гарантии записи в localStorage
+      // и затем делаем полный редирект через window.location.replace
+      setTimeout(() => {
+        window.location.replace("/dashboard")
+      }, 50)
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) {
         setError("Неверный логин или пароль")
