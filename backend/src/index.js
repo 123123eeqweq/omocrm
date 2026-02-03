@@ -43,8 +43,8 @@ app.use(
     name: "omocrm.sid", // Уникальное имя для cookie
     cookie: {
       httpOnly: true,
-      secure: true, // Всегда true для HTTPS
-      sameSite: "lax", // Возвращаем обратно на lax
+      secure: process.env.NODE_ENV === "production", // true только для HTTPS в продакшене
+      sameSite: "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 дней
       // Не указываем domain - браузер сам определит
     },
@@ -91,7 +91,7 @@ app.get("/api/auth/me", (req, res) => {
 app.post("/api/auth/logout", (req, res) => {
   req.session.destroy((err) => {
     if (err) return res.status(500).json({ error: "Logout error" })
-    res.clearCookie("connect.sid")
+    res.clearCookie("omocrm.sid")
     res.json({ ok: true })
   })
 })
