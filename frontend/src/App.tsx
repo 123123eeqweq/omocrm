@@ -16,19 +16,18 @@ function AppRoutes() {
       return
     }
     
-    // Если мы только что залогинились, не проверяем сессию сразу
-    // Даем время cookie установиться
+    // Если мы только что залогинились, пропускаем проверку сессии
+    // и сразу разрешаем доступ (сессия уже установлена на сервере)
     if (isJustLoggedIn()) {
       clearJustLoggedIn()
-      // Небольшая задержка перед проверкой сессии после логина
+      setSessionChecked(true)
+      // Проверяем сессию в фоне, но не блокируем доступ
       setTimeout(() => {
-        validateSession()
-          .then((ok) => {
-            if (!ok) clearAuthenticated()
-          })
-          .catch(() => clearAuthenticated())
-          .finally(() => setSessionChecked(true))
-      }, 300)
+        validateSession().catch(() => {
+          // Если сессия не валидна, сбросим флаг, но не редиректим сразу
+          clearAuthenticated()
+        })
+      }, 500)
     } else {
       validateSession()
         .then((ok) => {

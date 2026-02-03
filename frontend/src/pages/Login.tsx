@@ -18,16 +18,17 @@ export function Login() {
     setLoading(true)
     try {
       await login(loginValue, password)
-      // Небольшая задержка, чтобы сессия успела установиться на сервере
-      await new Promise((resolve) => setTimeout(resolve, 200))
-      navigate("/dashboard", { replace: true })
+      // Даем время для установки cookie и localStorage
+      await new Promise((resolve) => setTimeout(resolve, 300))
+      // Используем window.location для гарантированного редиректа
+      // Это обходит проблему с проверкой сессии в App.tsx
+      window.location.href = "/dashboard"
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) {
         setError("Неверный логин или пароль")
       } else {
         setError("Ошибка входа. Проверьте, что бэкенд запущен.")
       }
-    } finally {
       setLoading(false)
     }
   }
