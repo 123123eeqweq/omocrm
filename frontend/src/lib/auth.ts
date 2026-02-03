@@ -1,6 +1,7 @@
 import { checkSession, loginApi, logoutApi } from "@/lib/api"
 
 const AUTH_KEY = "auth"
+const JUST_LOGGED_IN_KEY = "justLoggedIn"
 
 export function isAuthenticated(): boolean {
   return localStorage.getItem(AUTH_KEY) === "1"
@@ -8,10 +9,21 @@ export function isAuthenticated(): boolean {
 
 export function setAuthenticated(): void {
   localStorage.setItem(AUTH_KEY, "1")
+  // Устанавливаем флаг, что мы только что залогинились
+  sessionStorage.setItem(JUST_LOGGED_IN_KEY, "1")
 }
 
 export function clearAuthenticated(): void {
   localStorage.removeItem(AUTH_KEY)
+  sessionStorage.removeItem(JUST_LOGGED_IN_KEY)
+}
+
+export function isJustLoggedIn(): boolean {
+  return sessionStorage.getItem(JUST_LOGGED_IN_KEY) === "1"
+}
+
+export function clearJustLoggedIn(): void {
+  sessionStorage.removeItem(JUST_LOGGED_IN_KEY)
 }
 
 /** Логин через API (создаёт сессию на бэкенде). Не нужно логиниться каждый раз — сессия живёт ~7 дней. */

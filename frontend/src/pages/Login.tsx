@@ -18,6 +18,8 @@ export function Login() {
     setLoading(true)
     try {
       await login(loginValue, password)
+      // Небольшая задержка, чтобы сессия успела установиться на сервере
+      await new Promise((resolve) => setTimeout(resolve, 200))
       navigate("/dashboard", { replace: true })
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) {

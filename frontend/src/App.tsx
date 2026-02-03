@@ -5,7 +5,7 @@ import { Dashboard } from "@/pages/Dashboard"
 import { ComforTradePage } from "@/pages/dashboard/ComforTradePage"
 import { DoviPage } from "@/pages/dashboard/DoviPage"
 import { ZavdannyaPage } from "@/pages/dashboard/ZavdannyaPage"
-import { isAuthenticated, validateSession, clearAuthenticated } from "@/lib/auth"
+import { isAuthenticated, validateSession, clearAuthenticated, isJustLoggedIn, clearJustLoggedIn } from "@/lib/auth"
 
 function AppRoutes() {
   const [sessionChecked, setSessionChecked] = useState(false)
@@ -15,12 +15,28 @@ function AppRoutes() {
       setSessionChecked(true)
       return
     }
-    validateSession()
-      .then((ok) => {
-        if (!ok) clearAuthenticated()
-      })
-      .catch(() => clearAuthenticated())
-      .finally(() => setSessionChecked(true))
+    
+    // Если мы только что залогинились, не проверяем сессию сразу
+    // Даем время cookie установиться
+    if (isJustLoggedIn()) {
+      clearJustLoggedIn()
+      // Небольшая задержка перед проверкой сессии после логина
+      setTimeout(() => {
+        validateSession()
+          .then((ok) => {
+            if (!ok) clearAuthenticated()
+          })
+          .catch(() => clearAuthenticated())
+          .finally(() => setSessionChecked(true))
+      }, 300)
+    } else {
+      validateSession()
+        .then((ok) => {
+          if (!ok) clearAuthenticated()
+        })
+        .catch(() => clearAuthenticated())
+        .finally(() => setSessionChecked(true))
+    }
   }, [])
 
   if (!sessionChecked) {
