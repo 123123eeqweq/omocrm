@@ -44,9 +44,9 @@ app.use(
     cookie: {
       httpOnly: true,
       secure: true, // Всегда true для HTTPS
-      sameSite: "lax",
+      sameSite: "lax", // Возвращаем обратно на lax
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 дней
-      domain: ".omocrm.pro", // Работает для omocrm.pro и www.omocrm.pro
+      // Не указываем domain - браузер сам определит
     },
   })
 )
