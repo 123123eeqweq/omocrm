@@ -18,10 +18,7 @@ export function Login() {
     setLoading(true)
     try {
       await login(loginValue, password)
-      // Небольшая задержка для установки cookie
-      await new Promise((resolve) => setTimeout(resolve, 500))
-      // Используем window.location для полного редиректа
-      window.location.href = "/dashboard"
+      navigate("/dashboard", { replace: true })
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) {
         setError("Неверный логин или пароль")

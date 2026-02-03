@@ -1,8 +1,6 @@
 import "dotenv/config"
 import express from "express"
 import cors from "cors"
-import cookieParser from "cookie-parser"
-import session from "express-session"
 import { connectDb } from "./db.js"
 import { getBoard, upsertBoard } from "./models/Board.js"
 
@@ -30,39 +28,24 @@ app.use(
         callback(new Error("Not allowed by CORS"))
       }
     },
-    credentials: true,
+    credentials: false, // Не нужны credentials без куки
   })
 )
-app.use(cookieParser())
 app.use(express.json())
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET ?? "change-me-in-production",
-    resave: false,
-    saveUninitialized: false,
-    name: "omocrm.sid", // Уникальное имя для cookie
-    cookie: {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production", // true только для HTTPS в продакшене
-      sameSite: "lax",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 дней
-      // Не указываем domain - браузер сам определит
-    },
-  })
-)
 
 await connectDb()
 
+// Простая проверка - просто проверяем что запрос пришел (фронтенд контролирует доступ через localStorage)
 function requireAuth(req, res, next) {
-  if (req.session?.userId) return next()
-  res.status(401).json({ error: "Unauthorized" })
+  // Всегда разрешаем - фронтенд сам контролирует доступ
+  return next()
 }
 
 app.get("/health", (req, res) => {
   res.json({ status: "ok" })
 })
 
-// POST /api/auth/login — проверка логина/пароля, создание сессии
+// POST /api/auth/login — проверка логина/пароля
 app.post("/api/auth/login", (req, res) => {
   const { login, password } = req.body || {}
   const expectedLogin = process.env.LOGIN ?? ""
@@ -70,30 +53,17 @@ app.post("/api/auth/login", (req, res) => {
   if (!login || !password || login !== expectedLogin || password !== expectedPassword) {
     return res.status(401).json({ error: "Неверный логин или пароль" })
   }
-  req.session.userId = login
-  req.session.save((err) => {
-    if (err) {
-      console.error("Session save error:", err)
-      return res.status(500).json({ error: "Session error" })
-    }
-    // Отправляем ответ с установленными заголовками
-    res.json({ ok: true, user: login })
-  })
+  res.json({ ok: true, user: login })
 })
 
-// GET /api/auth/me — проверка сессии (не нужно логиниться каждый раз)
+// GET /api/auth/me — всегда возвращает OK (проверка на фронтенде через localStorage)
 app.get("/api/auth/me", (req, res) => {
-  if (req.session?.userId) return res.json({ user: req.session.userId })
-  res.status(401).json({ error: "Unauthorized" })
+  res.json({ ok: true })
 })
 
-// POST /api/auth/logout — выход
+// POST /api/auth/logout — выход (просто OK, фронтенд сам очистит localStorage)
 app.post("/api/auth/logout", (req, res) => {
-  req.session.destroy((err) => {
-    if (err) return res.status(500).json({ error: "Logout error" })
-    res.clearCookie("omocrm.sid")
-    res.json({ ok: true })
-  })
+  res.json({ ok: true })
 })
 
 // GET board by projectId (защищён)

@@ -1,7 +1,6 @@
-import { checkSession, loginApi, logoutApi } from "@/lib/api"
+import { loginApi } from "@/lib/api"
 
 const AUTH_KEY = "auth"
-const JUST_LOGGED_IN_KEY = "justLoggedIn"
 
 export function isAuthenticated(): boolean {
   return localStorage.getItem(AUTH_KEY) === "1"
@@ -9,41 +8,19 @@ export function isAuthenticated(): boolean {
 
 export function setAuthenticated(): void {
   localStorage.setItem(AUTH_KEY, "1")
-  // Устанавливаем флаг, что мы только что залогинились
-  sessionStorage.setItem(JUST_LOGGED_IN_KEY, "1")
 }
 
 export function clearAuthenticated(): void {
   localStorage.removeItem(AUTH_KEY)
-  sessionStorage.removeItem(JUST_LOGGED_IN_KEY)
 }
 
-export function isJustLoggedIn(): boolean {
-  return sessionStorage.getItem(JUST_LOGGED_IN_KEY) === "1"
-}
-
-export function clearJustLoggedIn(): void {
-  sessionStorage.removeItem(JUST_LOGGED_IN_KEY)
-}
-
-/** Логин через API (создаёт сессию на бэкенде). Не нужно логиниться каждый раз — сессия живёт ~7 дней. */
+/** Логин через API - проверяет логин/пароль и сохраняет в localStorage */
 export async function login(login: string, password: string): Promise<void> {
   await loginApi(login, password)
   setAuthenticated()
 }
 
-/** Выход: убивает сессию на бэкенде и сбрасывает флаг на фронте. */
+/** Выход - просто очищает localStorage */
 export async function logout(): Promise<void> {
-  try {
-    await logoutApi()
-  } finally {
-    clearAuthenticated()
-  }
-}
-
-/** Проверить, жива ли сессия на бэкенде (при загрузке приложения). */
-export async function validateSession(): Promise<boolean> {
-  const ok = await checkSession()
-  if (!ok) clearAuthenticated()
-  return ok
+  clearAuthenticated()
 }

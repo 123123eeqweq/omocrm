@@ -1,7 +1,5 @@
 const API_BASE = import.meta.env.VITE_API_URL ?? ""
 
-const defaultCredentials: RequestCredentials = "include"
-
 export class ApiError extends Error {
   constructor(
     message: string,
@@ -23,9 +21,7 @@ async function checkResponse(res: Response): Promise<void> {
 }
 
 export async function getBoard(projectId: string): Promise<{ cards: CardItem[]; steps: StepItem[] }> {
-  const res = await fetch(`${API_BASE}/api/boards/${encodeURIComponent(projectId)}`, {
-    credentials: defaultCredentials,
-  })
+  const res = await fetch(`${API_BASE}/api/boards/${encodeURIComponent(projectId)}`)
   await checkResponse(res)
   const data = await res.json()
   return { cards: data.cards ?? [], steps: data.steps ?? [] }
@@ -38,7 +34,6 @@ export async function saveBoard(
 ): Promise<void> {
   const res = await fetch(`${API_BASE}/api/boards/${encodeURIComponent(projectId)}`, {
     method: "PUT",
-    credentials: defaultCredentials,
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ cards, steps }),
   })
@@ -48,23 +43,8 @@ export async function saveBoard(
 export async function loginApi(login: string, password: string): Promise<void> {
   const res = await fetch(`${API_BASE}/api/auth/login`, {
     method: "POST",
-    credentials: defaultCredentials,
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ login, password }),
   })
   await checkResponse(res)
-}
-
-export async function logoutApi(): Promise<void> {
-  const res = await fetch(`${API_BASE}/api/auth/logout`, {
-    method: "POST",
-    credentials: defaultCredentials,
-  })
-  if (!res.ok) return // уже разлогинен
-  await checkResponse(res)
-}
-
-export async function checkSession(): Promise<boolean> {
-  const res = await fetch(`${API_BASE}/api/auth/me`, { credentials: defaultCredentials })
-  return res.ok
 }
