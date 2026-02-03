@@ -11,31 +11,26 @@ function AppRoutes() {
   const [sessionChecked, setSessionChecked] = useState(false)
 
   useEffect(() => {
+    // Если только что залогинились, сразу разрешаем доступ без проверки
+    if (isJustLoggedIn()) {
+      clearJustLoggedIn()
+      setSessionChecked(true)
+      return
+    }
+
+    // Если не залогинены, сразу показываем логин
     if (!isAuthenticated()) {
       setSessionChecked(true)
       return
     }
-    
-    // Если мы только что залогинились, пропускаем проверку сессии
-    // и сразу разрешаем доступ (сессия уже установлена на сервере)
-    if (isJustLoggedIn()) {
-      clearJustLoggedIn()
-      setSessionChecked(true)
-      // Проверяем сессию в фоне, но не блокируем доступ
-      setTimeout(() => {
-        validateSession().catch(() => {
-          // Если сессия не валидна, сбросим флаг, но не редиректим сразу
-          clearAuthenticated()
-        })
-      }, 500)
-    } else {
-      validateSession()
-        .then((ok) => {
-          if (!ok) clearAuthenticated()
-        })
-        .catch(() => clearAuthenticated())
-        .finally(() => setSessionChecked(true))
-    }
+
+    // Проверяем сессию только если уже были залогинены ранее
+    validateSession()
+      .then((ok) => {
+        if (!ok) clearAuthenticated()
+      })
+      .catch(() => clearAuthenticated())
+      .finally(() => setSessionChecked(true))
   }, [])
 
   if (!sessionChecked) {

@@ -10,9 +10,26 @@ const app = express()
 const port = process.env.PORT ?? 3001
 const frontOrigin = process.env.FRONTEND_ORIGIN ?? "http://localhost:5173"
 
+// Разрешаем несколько origin'ов для разработки и продакшена
+const allowedOrigins = [
+  frontOrigin,
+  "https://omocrm.pro",
+  "http://omocrm.pro",
+  "https://www.omocrm.pro",
+  "http://www.omocrm.pro",
+  "http://localhost:5173",
+]
+
 app.use(
   cors({
-    origin: frontOrigin,
+    origin: (origin, callback) => {
+      // Разрешаем запросы без origin (например, Postman) или из разрешенных источников
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true)
+      } else {
+        callback(new Error("Not allowed by CORS"))
+      }
+    },
     credentials: true,
   })
 )
@@ -23,11 +40,13 @@ app.use(
     secret: process.env.SESSION_SECRET ?? "change-me-in-production",
     resave: false,
     saveUninitialized: false,
+    name: "omocrm.sid", // Уникальное имя для cookie
     cookie: {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: true, // Всегда true для HTTPS
       sameSite: "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 дней
+      domain: ".omocrm.pro", // Работает для omocrm.pro и www.omocrm.pro
     },
   })
 )
@@ -53,8 +72,12 @@ app.post("/api/auth/login", (req, res) => {
   }
   req.session.userId = login
   req.session.save((err) => {
-    if (err) return res.status(500).json({ error: "Session error" })
-    res.json({ ok: true })
+    if (err) {
+      console.error("Session save error:", err)
+      return res.status(500).json({ error: "Session error" })
+    }
+    // Отправляем ответ с установленными заголовками
+    res.json({ ok: true, user: login })
   })
 })
 

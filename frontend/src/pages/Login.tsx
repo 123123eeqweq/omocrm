@@ -18,10 +18,9 @@ export function Login() {
     setLoading(true)
     try {
       await login(loginValue, password)
-      // Даем время для установки cookie и localStorage
-      await new Promise((resolve) => setTimeout(resolve, 300))
-      // Используем window.location для гарантированного редиректа
-      // Это обходит проблему с проверкой сессии в App.tsx
+      // Небольшая задержка для установки cookie
+      await new Promise((resolve) => setTimeout(resolve, 500))
+      // Используем window.location для полного редиректа
       window.location.href = "/dashboard"
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) {
