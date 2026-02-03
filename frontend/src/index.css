@@ -1,0 +1,60 @@
+@import "tailwindcss";
+
+body {
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Блик на кнопке при наведении (золотистый) */
+.btn-shine {
+  position: relative;
+  overflow: hidden;
+}
+.btn-shine::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    rgba(224, 196, 140, 0.5),
+    rgba(255, 255, 255, 0.25),
+    transparent
+  );
+  transition: left 0.5s ease;
+  pointer-events: none;
+}
+.btn-shine:hover::before {
+  left: 100%;
+}
+
+/* Блики на карточке «В процессе» */
+@keyframes card-shimmer {
+  0%, 100% { opacity: 0; transform: translateX(-100%); }
+  50% { opacity: 1; transform: translateX(100%); }
+}
+.card-in-progress-shine {
+  position: relative;
+  overflow: hidden;
+}
+.card-in-progress-shine::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 0%,
+    transparent 40%,
+    rgba(255, 220, 150, 0.25) 45%,
+    rgba(255, 200, 100, 0.4) 50%,
+    rgba(255, 220, 150, 0.25) 55%,
+    transparent 60%,
+    transparent 100%
+  );
+  animation: card-shimmer 2.5s ease-in-out infinite;
+  pointer-events: none;
+}
