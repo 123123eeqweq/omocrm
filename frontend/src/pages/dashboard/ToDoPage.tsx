@@ -424,6 +424,18 @@ export function ToDoPage() {
           ) : null}
         </DragOverlay>
       </DndContext>
+      <div
+        className="mt-8 rounded-xl border px-5 py-4 lg:px-6 lg:py-5"
+        style={{
+          borderColor: `${ACCENT}30`,
+          backgroundColor: "rgba(0,0,0,0.25)",
+          boxShadow: `0 0 0 1px ${ACCENT}15`,
+        }}
+      >
+        <p className="text-sm leading-relaxed text-neutral-400 lg:text-base">
+          <span className="font-medium text-neutral-300">Тут пиши все свои идеи</span>, всё что считаешь нужным сделать. Я отсюда буду структурно планировать, переносить себе на доски и брать в работу.
+        </p>
+      </div>
     </div>
   )
 }
