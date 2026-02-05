@@ -4,11 +4,13 @@ import { logout } from "@/lib/auth"
 
 const ACCENT = "#b0853c"
 
-const MENU_ITEMS = [
+const COMPANY_ITEMS = [
   { to: "/dashboard/comfortrade", label: "ComforTrade", image: "/comfortrade.png" },
   { to: "/dashboard/dovi", label: "Dovi", image: "/dovi.jpg" },
   { to: "/dashboard/zavdannya-ua", label: "Завдання", image: "/tasks.png" },
 ] as const
+
+const TODO_ITEM = { to: "/dashboard/todo", label: "To Do", image: null } as const
 
 function IconMenu() {
   return (
@@ -91,10 +93,8 @@ export function Dashboard() {
             />
           </Link>
           <nav className="flex flex-1 flex-col justify-center gap-1">
-            {MENU_ITEMS.map(({ to, label, image }) => {
-              const isActive =
-                location.pathname === to ||
-                (location.pathname === "/dashboard" && to === "/dashboard/comfortrade")
+            {COMPANY_ITEMS.map(({ to, label, image }) => {
+              const isActive = location.pathname === to
               return (
                 <Link
                   key={to}
@@ -130,10 +130,36 @@ export function Dashboard() {
               )
             })}
           </nav>
+          <div className="mt-auto border-t border-neutral-800 pt-3" style={{ borderColor: `${ACCENT}30` }}>
+            <Link
+              to={TODO_ITEM.to}
+              onClick={() => setSidebarOpen(false)}
+              className="flex cursor-pointer items-center gap-3 rounded-lg border px-4 py-3.5 text-sm font-medium transition-colors hover:bg-neutral-800/80"
+            style={{
+              borderColor: location.pathname === TODO_ITEM.to ? ACCENT : "rgb(64 64 64)",
+              backgroundColor: location.pathname === TODO_ITEM.to ? `${ACCENT}20` : "rgba(0,0,0,0.3)",
+              color: location.pathname === TODO_ITEM.to ? ACCENT : "rgb(212 212 212)",
+            }}
+          >
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded bg-neutral-700 text-xs text-neutral-400">
+              ✓
+            </span>
+            <span className="min-w-0 flex-1">{TODO_ITEM.label}</span>
+            <span
+              className="flex h-2.5 w-2.5 shrink-0 rounded-full border-2"
+              style={{
+                borderColor: location.pathname === TODO_ITEM.to ? ACCENT : "currentColor",
+                backgroundColor: location.pathname === TODO_ITEM.to ? ACCENT : "transparent",
+                color: "rgb(115 115 115)",
+              }}
+              aria-hidden
+            />
+            </Link>
+          </div>
           <button
             type="button"
             onClick={handleLogout}
-            className="mt-auto cursor-pointer rounded-lg px-4 py-3.5 text-left text-sm font-medium text-neutral-400 transition-colors hover:bg-neutral-800/80 hover:text-red-400"
+            className="mt-2 cursor-pointer rounded-lg px-4 py-3.5 text-left text-sm font-medium text-neutral-400 transition-colors hover:bg-neutral-800/80 hover:text-red-400"
           >
             Выйти
           </button>

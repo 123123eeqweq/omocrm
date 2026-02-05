@@ -402,7 +402,7 @@ function KanbanColumn({
   )
 }
 
-export function ProjectBoard({ projectId }: { projectId: string }) {
+export function ProjectBoard({ projectId, hideRoadmap }: { projectId: string; hideRoadmap?: boolean }) {
   const navigate = useNavigate()
   const [cards, setCards] = useState<CardItem[]>([])
   const [activeId, setActiveId] = useState<string | null>(null)
@@ -659,6 +659,7 @@ export function ProjectBoard({ projectId }: { projectId: string }) {
         </DndContext>
       </div>
 
+      {!hideRoadmap && (
       <aside className="w-full shrink-0 border-t border-neutral-800 pt-4 lg:w-80 lg:border-t-0 lg:pt-0">
         <h2 className="mb-3 text-base font-semibold text-neutral-200 lg:mb-4 lg:text-lg" style={{ borderBottom: `2px solid ${ACCENT}`, paddingBottom: 4, width: "fit-content" }}>
           Роадмап
@@ -746,6 +747,7 @@ export function ProjectBoard({ projectId }: { projectId: string }) {
           </button>
         )}
       </aside>
+      )}
       </div>
     </div>
   )
